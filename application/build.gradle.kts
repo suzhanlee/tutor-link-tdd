@@ -29,6 +29,10 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.mockito:mockito-core:5.12.0")
+
+    implementation(project(":common"))
+    implementation(project(":teacher"))
 }
 
 tasks.withType<Test> {
