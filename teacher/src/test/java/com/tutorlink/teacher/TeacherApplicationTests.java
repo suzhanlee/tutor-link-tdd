@@ -1,13 +1,13 @@
-package com.tutor_link.tutor_link;
+package com.tutorlink.teacher;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TutorLinkApplicationTests {
+class TeacherApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
