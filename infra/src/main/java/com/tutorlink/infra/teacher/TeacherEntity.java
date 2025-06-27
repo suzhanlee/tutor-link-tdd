@@ -19,6 +19,11 @@ public class TeacherEntity {
 
     private String name;
 
+    protected TeacherEntity(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public TeacherEntity(String name) {
         this.name = name;
     }
