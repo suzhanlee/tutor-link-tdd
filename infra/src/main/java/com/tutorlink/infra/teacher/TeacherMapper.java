@@ -1,12 +1,11 @@
 package com.tutorlink.infra.teacher;
 
 import com.tutorlink.teacher.domain.Teacher;
-import com.tutorlink.teacher.domain.TeacherId;
 
 public class TeacherMapper {
     public static Teacher toDomain(TeacherEntity entity) {
         return new Teacher(
-                new TeacherId(entity.getId()),
+                entity.getId(),
                 entity.getName()
         );
     }

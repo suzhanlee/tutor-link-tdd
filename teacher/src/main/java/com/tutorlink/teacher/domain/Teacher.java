@@ -1,4 +1,4 @@
 package com.tutorlink.teacher.domain;
 
-public record Teacher(TeacherId id, String name) {
+public record Teacher(Long id, String name) {
 }
