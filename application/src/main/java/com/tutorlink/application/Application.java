@@ -1,13 +1,13 @@
-package com.tutorlink.teacher;
+package com.tutorlink.application;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TeacherApplication {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(TeacherApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
 }

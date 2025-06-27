@@ -1,3 +1,5 @@
 rootProject.name = 'tutor-link-tdd'
 
-include('teacher')
+include "application"
+include "teacher"
+include "infra"
