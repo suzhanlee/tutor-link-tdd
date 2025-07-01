@@ -1,5 +1,7 @@
 package com.tutorlink.teacher.dto;
 
-public record CreateTeacherCommand(String name) {
+import jakarta.validation.constraints.NotBlank;
+
+public record CreateTeacherCommand(@NotBlank String name) {
 
 }
