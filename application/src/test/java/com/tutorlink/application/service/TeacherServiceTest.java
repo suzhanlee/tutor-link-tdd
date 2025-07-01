@@ -7,6 +7,7 @@ import com.tutorlink.teacher.dto.RegisterTeacherResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -26,7 +27,7 @@ class TeacherServiceTest {
     private TeacherRepository teacherRepository;
 
     @Test
-    @DisplayName("")
+    @DisplayName("선생님 정보로 선생님을 등록할 수 있다.")
     void registerTeacher() {
         // given
         when(teacherRepository.save(Mockito.any(Teacher.class))).thenReturn(new Teacher(1L, "suchan"));
@@ -35,7 +36,11 @@ class TeacherServiceTest {
         RegisterTeacherResult result = teacherService.registerTeacher(new CreateTeacherCommand("suchan"));
 
         // then
-        verify(teacherRepository).save(Mockito.any(Teacher.class));
+        ArgumentCaptor<Teacher> teacherArgumentCaptor = ArgumentCaptor.forClass(Teacher.class);
+        verify(teacherRepository).save(teacherArgumentCaptor.capture());
+        Teacher teacher = teacherArgumentCaptor.getValue();
+        assertThat(teacher.name()).isEqualTo("suchan");
+
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(1L);
     }
