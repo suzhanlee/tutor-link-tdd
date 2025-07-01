@@ -29,4 +29,9 @@ public class TeacherEntity {
     public TeacherEntity(String name) {
         this.name = name;
     }
+
+    public void addClass(TeachingClassEntity teachingClassEntity) {
+        this.teachingClasses.add(teachingClassEntity);
+        teachingClassEntity.addTeacher(this);
+    }
 }
