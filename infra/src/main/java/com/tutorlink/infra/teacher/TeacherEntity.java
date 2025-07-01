@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,7 +20,7 @@ public class TeacherEntity {
     private String name;
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TeachingClassEntity> teachingClasses;
+    private List<TeachingClassEntity> teachingClasses = new ArrayList<>();
 
     protected TeacherEntity(Long id, String name) {
         this.id = id;
@@ -31,6 +32,9 @@ public class TeacherEntity {
     }
 
     public void addClass(TeachingClassEntity teachingClassEntity) {
+        if (this.teachingClasses == null) {
+            this.teachingClasses = new ArrayList<>();
+        }
         this.teachingClasses.add(teachingClassEntity);
         teachingClassEntity.addTeacher(this);
     }
