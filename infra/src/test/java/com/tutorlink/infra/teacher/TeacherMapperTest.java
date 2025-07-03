@@ -46,8 +46,8 @@ class TeacherMapperTest {
     void teacher_with_teaching_classes_domain_to_entity() {
         // given
         List<TeachingClass> teachingClasses = new ArrayList<>();
-        teachingClasses.add(new TeachingClass(null, 1L, "Math", "Math class", 10000));
-        teachingClasses.add(new TeachingClass(null, 1L, "English", "English class", 15000));
+        teachingClasses.add(new TeachingClass(null, 1L, "Math", "Math class", 10000, java.time.LocalDateTime.now()));
+        teachingClasses.add(new TeachingClass(null, 1L, "English", "English class", 15000, java.time.LocalDateTime.now()));
         Teacher teacher = new Teacher(1L, "suchan", teachingClasses, null);
 
         // when

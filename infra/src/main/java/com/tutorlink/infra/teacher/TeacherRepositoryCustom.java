@@ -1,16 +1,13 @@
-package com.tutorlink.teacher.domain.repository;
+package com.tutorlink.infra.teacher;
 
-import com.tutorlink.teacher.domain.Teacher;
 import com.tutorlink.teacher.dto.ClassMetadataDto;
 import com.tutorlink.teacher.dto.ClassSearchCondition;
 import com.tutorlink.teacher.dto.PageResponse;
 
-import java.util.Optional;
-
-public interface TeacherRepository {
-    Teacher save(Teacher teacher);
-
-    Optional<Teacher> findById(Long id);
+/**
+ * Custom repository interface for TeacherRepository
+ */
+public interface TeacherRepositoryCustom {
 
     /**
      * Find classes by teacher ID with pagination and filtering

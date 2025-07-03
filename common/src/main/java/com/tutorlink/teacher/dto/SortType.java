@@ -8,7 +8,7 @@ public enum SortType {
      * Sort by registration date (newest first)
      */
     LATEST,
-    
+
     /**
      * Sort by price (lowest first)
      */

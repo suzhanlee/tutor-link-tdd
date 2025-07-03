@@ -1,6 +1,5 @@
 package com.tutorlink.infra.teacher;
 
-import com.tutorlink.teacher.domain.ActiveStatus;
 import com.tutorlink.teacher.domain.Teacher;
 import com.tutorlink.teacher.domain.TeachingClass;
 

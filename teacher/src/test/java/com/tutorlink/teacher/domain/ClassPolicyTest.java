@@ -35,7 +35,7 @@ public class ClassPolicyTest {
 
             classPolicy.validate(teacher, command);
             teacher = teacher.registerClass(
-                    new TeachingClass(null, teacher.id(), command.title(), command.description(), command.price())
+                    new TeachingClass(null, teacher.id(), command.title(), command.description(), command.price(), command.registeredAt())
             );
         }
     }
@@ -111,7 +111,7 @@ public class ClassPolicyTest {
     }
 
     private static TeachingClass createTeachingClass(Long id) {
-        return new TeachingClass(id, 1L, "A 클래스", "A 클래스 설명", 1000);
+        return new TeachingClass(id, 1L, "A 클래스", "A 클래스 설명", 1000, LocalDateTime.now());
     }
 
     @Test

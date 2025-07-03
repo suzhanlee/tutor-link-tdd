@@ -25,6 +25,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -100,10 +101,10 @@ class TeacherServiceTest {
         // given
         Long teacherId = 999L;
         RegisterClassCommand command = new RegisterClassCommand(
-                teacherId, 
-                "프로그래밍 기초 클래스", 
-                "자바 프로그래밍 기초를 배우는 클래스입니다.", 
-                50000, 
+                teacherId,
+                "프로그래밍 기초 클래스",
+                "자바 프로그래밍 기초를 배우는 클래스입니다.",
+                50000,
                 LocalDateTime.of(2023, 6, 8, 8, 0)
         );
 
@@ -121,10 +122,10 @@ class TeacherServiceTest {
         // given
         Long teacherId = 1L;
         RegisterClassCommand command = new RegisterClassCommand(
-                teacherId, 
+                teacherId,
                 "짧은제목", // 10자 미만으로 정책 위반
-                "자바 프로그래밍 기초를 배우는 클래스입니다.", 
-                50000, 
+                "자바 프로그래밍 기초를 배우는 클래스입니다.",
+                50000,
                 LocalDateTime.of(2023, 6, 8, 8, 0)
         );
 
@@ -156,8 +157,29 @@ class TeacherServiceTest {
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
 
-        // Mock the repository to return the teacher
+        // Create expected content
+        List<ClassMetadataDto> expectedContent = teachingClasses.stream()
+                .map(tc -> new ClassMetadataDto(
+                        tc.id(),
+                        tc.teacherId(),
+                        tc.title(),
+                        tc.description(),
+                        tc.price(),
+                        tc.registeredAt()
+                ))
+                .toList();
+        PageResponse<ClassMetadataDto> expectedPage = PageResponse.of(
+                expectedContent,
+                0,
+                expectedContent.size(),
+                expectedContent.size(),
+                1
+        );
+
+        // Mock the repository to return the teacher and the page
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+        when(teacherRepository.findClassesByTeacherId(eq(teacherId), any(ClassSearchCondition.class)))
+                .thenReturn(expectedPage);
 
         // when
         List<ClassMetadataDto> result = teacherService.getClassesByTeacherId(teacherId, null);
@@ -200,12 +222,12 @@ class TeacherServiceTest {
     @ParameterizedTest
     @DisplayName("제목 키워드로 클래스를 필터링할 수 있다.")
     @CsvSource({
-        "프로그래밍, 2", // 키워드가 두 클래스 모두에 포함됨
-        "기초, 1",      // 키워드가 첫 번째 클래스에만 포함됨
-        "알고리즘, 1",   // 키워드가 두 번째 클래스에만 포함됨
-        "마스터, 1",     // 키워드가 두 번째 클래스에만 포함됨
-        "자바, 0",      // 키워드가 어떤 클래스에도 포함되지 않음
-        ", 2"           // 키워드가 없으면 모든 클래스 반환
+            "프로그래밍, 2", // 키워드가 두 클래스 모두에 포함됨
+            "기초, 1",      // 키워드가 첫 번째 클래스에만 포함됨
+            "알고리즘, 1",   // 키워드가 두 번째 클래스에만 포함됨
+            "마스터, 1",     // 키워드가 두 번째 클래스에만 포함됨
+            "자바, 0",      // 키워드가 어떤 클래스에도 포함되지 않음
+            ", 2"           // 키워드가 없으면 모든 클래스 반환
     })
     void getClassesByTeacherIdWithTitleKeyword(String keyword, int expectedCount) {
         // given
@@ -221,8 +243,34 @@ class TeacherServiceTest {
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
 
-        // Mock the repository to return the teacher
+        // Filter classes based on keyword
+        List<TeachingClass> filteredClasses = teachingClasses.stream()
+                .filter(tc -> keyword == null || keyword.isEmpty() || tc.title().contains(keyword))
+                .toList();
+
+        // Create expected content
+        List<ClassMetadataDto> expectedContent = filteredClasses.stream()
+                .map(tc -> new ClassMetadataDto(
+                        tc.id(),
+                        tc.teacherId(),
+                        tc.title(),
+                        tc.description(),
+                        tc.price(),
+                        tc.registeredAt()
+                ))
+                .toList();
+        PageResponse<ClassMetadataDto> expectedPage = PageResponse.of(
+                expectedContent,
+                0,
+                expectedContent.size(),
+                expectedContent.size(),
+                1
+        );
+
+        // Mock the repository to return the teacher and the page
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+        when(teacherRepository.findClassesByTeacherId(eq(teacherId), any(ClassSearchCondition.class)))
+                .thenReturn(expectedPage);
 
         // when
         List<ClassMetadataDto> result = teacherService.getClassesByTeacherIdWithTitleKeyword(teacherId, keyword);
@@ -256,8 +304,33 @@ class TeacherServiceTest {
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
 
-        // Mock the repository to return the teacher
+        // Sort classes by latest (newest first)
+        List<TeachingClass> sortedClasses = new ArrayList<>(teachingClasses);
+        sortedClasses.sort((c1, c2) -> c2.registeredAt().compareTo(c1.registeredAt()));
+
+        // Create expected content
+        List<ClassMetadataDto> expectedContent = sortedClasses.stream()
+                .map(tc -> new ClassMetadataDto(
+                        tc.id(),
+                        tc.teacherId(),
+                        tc.title(),
+                        tc.description(),
+                        tc.price(),
+                        tc.registeredAt()
+                ))
+                .toList();
+        PageResponse<ClassMetadataDto> expectedPage = PageResponse.of(
+                expectedContent,
+                0,
+                expectedContent.size(),
+                expectedContent.size(),
+                1
+        );
+
+        // Mock the repository to return the teacher and the page
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+        when(teacherRepository.findClassesByTeacherId(eq(teacherId), any(ClassSearchCondition.class)))
+                .thenReturn(expectedPage);
 
         // when
         List<ClassMetadataDto> result = teacherService.getClassesByTeacherId(teacherId, ClassSearchCondition.withSortType(SortType.LATEST));
@@ -287,8 +360,33 @@ class TeacherServiceTest {
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
 
-        // Mock the repository to return the teacher
+        // Sort classes by price (lowest first)
+        List<TeachingClass> sortedClasses = new ArrayList<>(teachingClasses);
+        sortedClasses.sort((c1, c2) -> Integer.compare(c1.price(), c2.price()));
+
+        // Create expected content
+        List<ClassMetadataDto> expectedContent = sortedClasses.stream()
+                .map(tc -> new ClassMetadataDto(
+                        tc.id(),
+                        tc.teacherId(),
+                        tc.title(),
+                        tc.description(),
+                        tc.price(),
+                        tc.registeredAt()
+                ))
+                .toList();
+        PageResponse<ClassMetadataDto> expectedPage = PageResponse.of(
+                expectedContent,
+                0,
+                expectedContent.size(),
+                expectedContent.size(),
+                1
+        );
+
+        // Mock the repository to return the teacher and the page
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+        when(teacherRepository.findClassesByTeacherId(eq(teacherId), any(ClassSearchCondition.class)))
+                .thenReturn(expectedPage);
 
         // when
         List<ClassMetadataDto> result = teacherService.getClassesByTeacherId(teacherId, ClassSearchCondition.withSortType(SortType.PRICE));
@@ -300,5 +398,73 @@ class TeacherServiceTest {
         assertThat(result.get(0).id()).isEqualTo(2L); // 가장 저렴한 클래스 (50000)
         assertThat(result.get(1).id()).isEqualTo(1L); // 중간 가격 클래스 (70000)
         assertThat(result.get(2).id()).isEqualTo(3L); // 가장 비싼 클래스 (90000)
+    }
+
+    @Test
+    @DisplayName("클래스 목록을 페이징하여 조회할 수 있다.")
+    void getClassesByTeacherIdWithPagination() {
+        // given
+        Long teacherId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+
+        // Create a list of teaching classes
+        List<TeachingClass> teachingClasses = new ArrayList<>();
+        for (int i = 1; i <= 20; i++) {
+            teachingClasses.add(new TeachingClass(
+                    (long) i,
+                    teacherId,
+                    "프로그래밍 클래스 " + i,
+                    "프로그래밍 클래스 " + i + " 설명",
+                    50000 + (i * 1000),
+                    now.minusDays(i)
+            ));
+        }
+
+        // Create a teacher with the teaching classes
+        Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
+
+        // Create page request for first page with 5 items
+        PageRequest pageRequest = PageRequest.of(0, 5);
+        ClassSearchCondition condition = ClassSearchCondition.withPageRequest(pageRequest);
+
+        // Create expected page response
+        List<ClassMetadataDto> expectedContent = teachingClasses.subList(0, 5).stream()
+                .map(tc -> new ClassMetadataDto(
+                        tc.id(),
+                        tc.teacherId(),
+                        tc.title(),
+                        tc.description(),
+                        tc.price(),
+                        tc.registeredAt()
+                ))
+                .toList();
+        PageResponse<ClassMetadataDto> expectedPage = PageResponse.of(
+                expectedContent,
+                0,
+                5,
+                20,
+                4
+        );
+
+        // Mock the repository to return the teacher and the page
+        when(teacherRepository.findById(eq(teacherId))).thenReturn(Optional.of(teacher));
+        when(teacherRepository.findClassesByTeacherId(eq(teacherId), eq(condition)))
+                .thenReturn(expectedPage);
+
+        // when
+        PageResponse<ClassMetadataDto> result = teacherService.getClassesByTeacherIdPaginated(teacherId, condition);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.content()).hasSize(5);
+        assertThat(result.pageNumber()).isEqualTo(0);
+        assertThat(result.pageSize()).isEqualTo(5);
+        assertThat(result.totalElements()).isEqualTo(20);
+        assertThat(result.totalPages()).isEqualTo(4);
+
+        // Verify first item in the page
+        ClassMetadataDto firstClass = result.content().get(0);
+        assertThat(firstClass.id()).isEqualTo(1L);
+        assertThat(firstClass.title()).isEqualTo("프로그래밍 클래스 1");
     }
 }

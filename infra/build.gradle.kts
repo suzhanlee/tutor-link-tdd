@@ -27,7 +27,14 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
+    // QueryDSL
+    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+
     implementation(project(":teacher"))
+    implementation(project(":common"))
 }
 
 tasks.withType<Test> {
@@ -36,4 +43,18 @@ tasks.withType<Test> {
 
 tasks.getByName<BootJar>("bootJar") {
     enabled = false
+}
+
+// Configure QueryDSL to generate Q-classes
+tasks.withType<JavaCompile> {
+    options.annotationProcessorPath = configurations.annotationProcessor.get()
+}
+
+// Define the directory for generated sources
+sourceSets {
+    main {
+        java {
+            srcDir("$buildDir/generated/sources/annotationProcessor/java/main")
+        }
+    }
 }
