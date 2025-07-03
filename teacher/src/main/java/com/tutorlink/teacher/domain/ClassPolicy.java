@@ -1,6 +1,7 @@
 package com.tutorlink.teacher.domain;
 
 import com.tutorlink.teacher.dto.RegisterClassCommand;
+import java.time.LocalTime;
 
 public class ClassPolicy {
     public void validate(Teacher teacher, RegisterClassCommand registerClassCommand) {
@@ -13,6 +14,12 @@ public class ClassPolicy {
         }
         if (title.length() >= 100) {
             throw new IllegalArgumentException("클래스 제목은 100자 미만이어야 합니다.");
+        }
+
+        // 등록 시간 검증 (오전 6시 ~ 10시 사이)
+        int hour = registerClassCommand.registeredAt().getHour();
+        if (hour < 6 || hour >= 10) {
+            throw new IllegalArgumentException("클래스 등록은 오전 6시부터 10시 사이에만 가능합니다.");
         }
     }
 }
