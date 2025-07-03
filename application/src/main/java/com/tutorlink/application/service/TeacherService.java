@@ -7,9 +7,11 @@ import com.tutorlink.teacher.domain.TeachingClass;
 import com.tutorlink.teacher.domain.repository.TeacherRepository;
 import com.tutorlink.teacher.dto.*;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional
 public class TeacherService {
 
     private final TeacherRepository teacherRepository;
