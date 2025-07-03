@@ -20,8 +20,8 @@ public record Teacher(Long id, String name, List<TeachingClass> teachingClasses,
 
     public Teacher registerClass(TeachingClass teachingClass) {
         Objects.requireNonNull(teachingClass, "클래스를 등록할 수 없습니다.");
-        if (teachingClasses.size() >= 8) {
-            throw new IllegalStateException("클래스는 9개 이상 등록할 수 없습니다.");
+        if (teachingClasses.size() >= 10) {
+            throw new IllegalStateException("클래스는 10개 이상 등록할 수 없습니다.");
         }
         List<TeachingClass> newTeachingClasses = new ArrayList<>(teachingClasses);
         newTeachingClasses.add(teachingClass);

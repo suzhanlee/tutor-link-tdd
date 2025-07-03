@@ -5,10 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.params.provider.EnumSource;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -16,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class ClassPolicyTest {
 
     @ParameterizedTest
-    @DisplayName("클래스 개수는 0개 이상 9개 이하여야 한다.")
-    @ValueSource(ints = {0, 8})
+    @DisplayName("클래스 개수는 0개 이상 10개 이하여야 한다.")
+    @ValueSource(ints = {0, 10})
     void validateClassPolicy(int classPolicyCnt) {
         // given
         LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
@@ -27,7 +25,7 @@ public class ClassPolicyTest {
         for (int i = 0; i < classPolicyCnt; i++) {
             final RegisterClassCommand command = new RegisterClassCommand(1L, "A 클래스123456", "A 클래스 설명", 3000, registrationTime);
 
-            if (teacher.teachingClasses().size() >= 9) {
+            if (teacher.teachingClasses().size() >= 10) {
                 final Teacher finalTeacher = teacher; // 람다 캡처를 위해 final 변수 선언
                 assertThatThrownBy(() -> classPolicy.validate(finalTeacher, command))
                         .isInstanceOf(IllegalStateException.class)
