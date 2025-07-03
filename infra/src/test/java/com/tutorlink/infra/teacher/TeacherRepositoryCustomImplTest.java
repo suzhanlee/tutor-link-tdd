@@ -1,6 +1,7 @@
 package com.tutorlink.infra.teacher;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.tutorlink.infra.config.QuerydslConfig;
 import com.tutorlink.teacher.domain.ActiveStatus;
 import com.tutorlink.teacher.dto.*;
 import jakarta.persistence.EntityManager;
@@ -12,12 +13,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import(TeacherRepositoryCustomImpl.class)
+@Import({QuerydslConfig.class, TeacherRepositoryCustomImpl.class})
 class TeacherRepositoryCustomImplTest {
 
     @Autowired
@@ -42,47 +42,47 @@ class TeacherRepositoryCustomImplTest {
 
         // Create classes for teacher1
         TeachingClassEntity mathClass = new TeachingClassEntity(
-                "Math Class", 
-                "Learn mathematics", 
-                10000, 
-                teacher1, 
+                "Math Class",
+                "Learn mathematics",
+                10000,
+                teacher1,
                 LocalDateTime.of(2023, 1, 1, 0, 0)
         );
         teacher1.addClass(mathClass);
 
         TeachingClassEntity englishClass = new TeachingClassEntity(
-                "English Class", 
-                "Learn English language", 
-                15000, 
-                teacher1, 
+                "English Class",
+                "Learn English language",
+                15000,
+                teacher1,
                 LocalDateTime.of(2023, 2, 1, 0, 0)
         );
         teacher1.addClass(englishClass);
 
         TeachingClassEntity scienceClass = new TeachingClassEntity(
-                "Science Class", 
-                "Learn science", 
-                12000, 
-                teacher1, 
+                "Science Class",
+                "Learn science",
+                12000,
+                teacher1,
                 LocalDateTime.of(2023, 3, 1, 0, 0)
         );
         teacher1.addClass(scienceClass);
 
         // Create classes for teacher2
         TeachingClassEntity historyClass = new TeachingClassEntity(
-                "History Class", 
-                "Learn history", 
-                11000, 
-                teacher2, 
+                "History Class",
+                "Learn history",
+                11000,
+                teacher2,
                 LocalDateTime.of(2023, 1, 15, 0, 0)
         );
         teacher2.addClass(historyClass);
 
         TeachingClassEntity artClass = new TeachingClassEntity(
-                "Art Class", 
-                "Learn art", 
-                9000, 
-                teacher2, 
+                "Art Class",
+                "Learn art",
+                9000,
+                teacher2,
                 LocalDateTime.of(2023, 2, 15, 0, 0)
         );
         teacher2.addClass(artClass);
