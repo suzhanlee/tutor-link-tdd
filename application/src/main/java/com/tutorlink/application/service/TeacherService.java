@@ -71,4 +71,29 @@ public class TeacherService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * 선생님이 등록한 클래스 목록을 제목 키워드로 필터링하여 조회한다.
+     *
+     * @param teacherId 선생님 ID
+     * @param titleKeyword 제목 키워드 (null이거나 빈 문자열이면 모든 클래스 반환)
+     * @return 필터링된 클래스 메타데이터 DTO 목록
+     * @throws IllegalArgumentException 선생님이 존재하지 않는 경우
+     */
+    public List<ClassMetadataDto> getClassesByTeacherIdWithTitleKeyword(Long teacherId, String titleKeyword) {
+        Teacher teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("선생님이 존재하지 않습니다."));
+
+        return teacher.teachingClasses().stream()
+                .filter(teachingClass -> titleKeyword == null || titleKeyword.isEmpty() || 
+                        teachingClass.title().contains(titleKeyword))
+                .map(teachingClass -> new ClassMetadataDto(
+                        teachingClass.id(),
+                        teachingClass.teacherId(),
+                        teachingClass.title(),
+                        teachingClass.description(),
+                        teachingClass.price()
+                ))
+                .collect(Collectors.toList());
+    }
 }

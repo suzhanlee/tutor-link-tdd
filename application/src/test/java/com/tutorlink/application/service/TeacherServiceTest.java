@@ -12,6 +12,8 @@ import com.tutorlink.teacher.dto.RegisterTeacherResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -192,5 +194,44 @@ class TeacherServiceTest {
         assertThatThrownBy(() -> teacherService.getClassesByTeacherId(nonExistentTeacherId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("선생님이 존재하지 않습니다");
+    }
+
+    @ParameterizedTest
+    @DisplayName("제목 키워드로 클래스를 필터링할 수 있다.")
+    @CsvSource({
+        "프로그래밍, 2", // 키워드가 두 클래스 모두에 포함됨
+        "기초, 1",      // 키워드가 첫 번째 클래스에만 포함됨
+        "알고리즘, 1",   // 키워드가 두 번째 클래스에만 포함됨
+        "마스터, 1",     // 키워드가 두 번째 클래스에만 포함됨
+        "자바, 0",      // 키워드가 어떤 클래스에도 포함되지 않음
+        ", 2"           // 키워드가 없으면 모든 클래스 반환
+    })
+    void getClassesByTeacherIdWithTitleKeyword(String keyword, int expectedCount) {
+        // given
+        Long teacherId = 1L;
+
+        // Create a list of teaching classes
+        List<TeachingClass> teachingClasses = new ArrayList<>();
+        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000));
+        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 프로그래밍", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000));
+
+        // Create a teacher with the teaching classes
+        Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
+
+        // Mock the repository to return the teacher
+        when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+
+        // when
+        List<ClassMetadataDto> result = teacherService.getClassesByTeacherIdWithTitleKeyword(teacherId, keyword);
+
+        // then
+        assertThat(result).hasSize(expectedCount);
+
+        // Verify that all returned classes contain the keyword in their title
+        if (keyword != null && !keyword.isEmpty()) {
+            for (ClassMetadataDto dto : result) {
+                assertThat(dto.title().contains(keyword)).isTrue();
+            }
+        }
     }
 }
