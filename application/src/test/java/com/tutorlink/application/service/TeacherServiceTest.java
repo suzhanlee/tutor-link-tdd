@@ -5,10 +5,7 @@ import com.tutorlink.teacher.domain.ClassPolicy;
 import com.tutorlink.teacher.domain.Teacher;
 import com.tutorlink.teacher.domain.TeachingClass;
 import com.tutorlink.teacher.domain.repository.TeacherRepository;
-import com.tutorlink.teacher.dto.ClassMetadataDto;
-import com.tutorlink.teacher.dto.CreateTeacherCommand;
-import com.tutorlink.teacher.dto.RegisterClassCommand;
-import com.tutorlink.teacher.dto.RegisterTeacherResult;
+import com.tutorlink.teacher.dto.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -148,11 +145,13 @@ class TeacherServiceTest {
     void getClassesByTeacherId() {
         // given
         Long teacherId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime yesterday = now.minusDays(1);
 
         // Create a list of teaching classes
         List<TeachingClass> teachingClasses = new ArrayList<>();
-        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000));
-        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 클래스", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000));
+        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000, yesterday));
+        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 클래스", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000, now));
 
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
@@ -161,7 +160,7 @@ class TeacherServiceTest {
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
 
         // when
-        List<ClassMetadataDto> result = teacherService.getClassesByTeacherId(teacherId);
+        List<ClassMetadataDto> result = teacherService.getClassesByTeacherId(teacherId, null);
 
         // then
         assertThat(result).hasSize(2);
@@ -173,6 +172,7 @@ class TeacherServiceTest {
         assertThat(firstClass.title()).isEqualTo("프로그래밍 기초 클래스");
         assertThat(firstClass.description()).isEqualTo("자바 프로그래밍 기초를 배우는 클래스입니다.");
         assertThat(firstClass.price()).isEqualTo(50000);
+        assertThat(firstClass.registeredAt()).isEqualTo(yesterday);
 
         // Verify second class
         ClassMetadataDto secondClass = result.get(1);
@@ -181,6 +181,7 @@ class TeacherServiceTest {
         assertThat(secondClass.title()).isEqualTo("알고리즘 마스터 클래스");
         assertThat(secondClass.description()).isEqualTo("알고리즘 문제 해결 능력을 키우는 클래스입니다.");
         assertThat(secondClass.price()).isEqualTo(70000);
+        assertThat(secondClass.registeredAt()).isEqualTo(now);
     }
 
     @Test
@@ -191,7 +192,7 @@ class TeacherServiceTest {
         when(teacherRepository.findById(nonExistentTeacherId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> teacherService.getClassesByTeacherId(nonExistentTeacherId))
+        assertThatThrownBy(() -> teacherService.getClassesByTeacherId(nonExistentTeacherId, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("선생님이 존재하지 않습니다");
     }
@@ -209,11 +210,13 @@ class TeacherServiceTest {
     void getClassesByTeacherIdWithTitleKeyword(String keyword, int expectedCount) {
         // given
         Long teacherId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime yesterday = now.minusDays(1);
 
         // Create a list of teaching classes
         List<TeachingClass> teachingClasses = new ArrayList<>();
-        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000));
-        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 프로그래밍", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000));
+        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000, yesterday));
+        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 프로그래밍", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000, now));
 
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
@@ -233,5 +236,69 @@ class TeacherServiceTest {
                 assertThat(dto.title().contains(keyword)).isTrue();
             }
         }
+    }
+
+    @Test
+    @DisplayName("클래스를 최신순으로 정렬할 수 있다.")
+    void getClassesByTeacherIdSortedByLatest() {
+        // given
+        Long teacherId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime yesterday = now.minusDays(1);
+        LocalDateTime twoDaysAgo = now.minusDays(2);
+
+        // Create a list of teaching classes with different registration dates
+        List<TeachingClass> teachingClasses = new ArrayList<>();
+        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000, twoDaysAgo));
+        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 클래스", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000, yesterday));
+        teachingClasses.add(new TeachingClass(3L, teacherId, "웹 개발 클래스", "웹 개발 기초를 배우는 클래스입니다.", 60000, now));
+
+        // Create a teacher with the teaching classes
+        Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
+
+        // Mock the repository to return the teacher
+        when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+
+        // when
+        List<ClassMetadataDto> result = teacherService.getClassesByTeacherId(teacherId, ClassSearchCondition.withSortType(SortType.LATEST));
+
+        // then
+        assertThat(result).hasSize(3);
+
+        // Verify that classes are sorted by registration date (newest first)
+        assertThat(result.get(0).id()).isEqualTo(3L); // 가장 최근에 등록된 클래스
+        assertThat(result.get(1).id()).isEqualTo(2L); // 어제 등록된 클래스
+        assertThat(result.get(2).id()).isEqualTo(1L); // 이틀 전에 등록된 클래스
+    }
+
+    @Test
+    @DisplayName("클래스를 가격순으로 정렬할 수 있다.")
+    void getClassesByTeacherIdSortedByPrice() {
+        // given
+        Long teacherId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+
+        // Create a list of teaching classes with different prices
+        List<TeachingClass> teachingClasses = new ArrayList<>();
+        teachingClasses.add(new TeachingClass(1L, teacherId, "중급 프로그래밍 클래스", "자바 프로그래밍 중급 과정입니다.", 70000, now));
+        teachingClasses.add(new TeachingClass(2L, teacherId, "초급 프로그래밍 클래스", "자바 프로그래밍 초급 과정입니다.", 50000, now));
+        teachingClasses.add(new TeachingClass(3L, teacherId, "고급 프로그래밍 클래스", "자바 프로그래밍 고급 과정입니다.", 90000, now));
+
+        // Create a teacher with the teaching classes
+        Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
+
+        // Mock the repository to return the teacher
+        when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+
+        // when
+        List<ClassMetadataDto> result = teacherService.getClassesByTeacherId(teacherId, ClassSearchCondition.withSortType(SortType.PRICE));
+
+        // then
+        assertThat(result).hasSize(3);
+
+        // Verify that classes are sorted by price (lowest first)
+        assertThat(result.get(0).id()).isEqualTo(2L); // 가장 저렴한 클래스 (50000)
+        assertThat(result.get(1).id()).isEqualTo(1L); // 중간 가격 클래스 (70000)
+        assertThat(result.get(2).id()).isEqualTo(3L); // 가장 비싼 클래스 (90000)
     }
 }
