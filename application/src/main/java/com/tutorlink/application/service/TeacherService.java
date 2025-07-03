@@ -14,7 +14,7 @@ public class TeacherService {
     }
 
     public RegisterTeacherResult registerTeacher(CreateTeacherCommand command) {
-        Teacher teacher = new Teacher(0L, command.name());
+        Teacher teacher = new Teacher(0L, command.name(), null, null);
         Teacher savedTeacher = teacherRepository.save(teacher);
         return new RegisterTeacherResult(savedTeacher.id());
     }

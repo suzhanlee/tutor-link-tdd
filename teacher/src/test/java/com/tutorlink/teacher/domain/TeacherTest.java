@@ -16,7 +16,7 @@ class TeacherTest {
         String name = null;
 
         // when // then
-        assertThatThrownBy(() -> new Teacher(0L, name, new ArrayList<>()))
+        assertThatThrownBy(() -> new Teacher(0L, name, new ArrayList<>(), null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("선생님의 이름이 비어있을 수 없습니다.");
     }

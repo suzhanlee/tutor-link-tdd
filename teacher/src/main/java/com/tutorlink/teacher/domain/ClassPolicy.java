@@ -5,6 +5,14 @@ import java.time.LocalTime;
 
 public class ClassPolicy {
     public void validate(Teacher teacher, RegisterClassCommand registerClassCommand) {
+        // Teacher 존재 여부 및 활성 상태 확인
+        if (teacher == null) {
+            throw new IllegalArgumentException("선생님이 존재하지 않습니다.");
+        }
+        if (!teacher.activeStatus().isActive()) {
+            throw new IllegalStateException("비활성화된 선생님은 클래스를 등록할 수 없습니다.");
+        }
+
         if (teacher.teachingClasses().size() >= 8) {
             throw new IllegalStateException("최대 클래스 개수를 초과했습니다.");
         }

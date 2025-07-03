@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -104,7 +105,11 @@ public class ClassPolicyTest {
     }
 
     private static Teacher createTeacherWithEmptyClass() {
-        return new Teacher(1L, "suchan", new ArrayList<>());
+        return new Teacher(1L, "suchan", new ArrayList<>(), ActiveStatus.ACTIVE);
+    }
+
+    private static Teacher createTeacherWithEmptyClass(ActiveStatus activeStatus) {
+        return new Teacher(1L, "suchan", new ArrayList<>(), activeStatus);
     }
 
     private static TeachingClass createTeachingClass(Long id) {
@@ -137,5 +142,48 @@ public class ClassPolicyTest {
         assertThatThrownBy(() -> classPolicy.validate(teacher, command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("클래스 등록은 오전 6시부터 10시 사이에만 가능합니다.");
+    }
+
+    @Test
+    @DisplayName("활성화된 선생님은 클래스를 등록할 수 있다")
+    void validateActiveTeacher() {
+        // given
+        LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
+        final ClassPolicy classPolicy = new ClassPolicy();
+        Teacher teacher = createTeacherWithEmptyClass(ActiveStatus.ACTIVE);
+        final RegisterClassCommand command = new RegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
+
+        // when & then
+        classPolicy.validate(teacher, command); // 예외가 발생하지 않아야 함
+    }
+
+    @Test
+    @DisplayName("비활성화된 선생님은 클래스를 등록할 수 없다")
+    void validateInactiveTeacher() {
+        // given
+        LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
+        final ClassPolicy classPolicy = new ClassPolicy();
+        Teacher teacher = createTeacherWithEmptyClass(ActiveStatus.INACTIVE);
+        final RegisterClassCommand command = new RegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
+
+        // when & then
+        assertThatThrownBy(() -> classPolicy.validate(teacher, command))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("비활성화된 선생님은 클래스를 등록할 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("선생님이 존재하지 않으면 클래스를 등록할 수 없다")
+    void validateNullTeacher() {
+        // given
+        LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
+        final ClassPolicy classPolicy = new ClassPolicy();
+        Teacher teacher = null;
+        final RegisterClassCommand command = new RegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
+
+        // when & then
+        assertThatThrownBy(() -> classPolicy.validate(teacher, command))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("선생님이 존재하지 않습니다.");
     }
 }
