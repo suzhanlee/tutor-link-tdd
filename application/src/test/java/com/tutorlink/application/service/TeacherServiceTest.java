@@ -5,6 +5,7 @@ import com.tutorlink.teacher.domain.ClassPolicy;
 import com.tutorlink.teacher.domain.Teacher;
 import com.tutorlink.teacher.domain.TeachingClass;
 import com.tutorlink.teacher.domain.repository.TeacherRepository;
+import com.tutorlink.teacher.dto.ClassMetadataDto;
 import com.tutorlink.teacher.dto.CreateTeacherCommand;
 import com.tutorlink.teacher.dto.RegisterClassCommand;
 import com.tutorlink.teacher.dto.RegisterTeacherResult;
@@ -19,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -137,5 +139,58 @@ class TeacherServiceTest {
         assertThatThrownBy(() -> teacherService.registerClass(command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("클래스 제목은 10자 이상이어야 합니다");
+    }
+
+    @Test
+    @DisplayName("선생님이 등록한 클래스 목록을 조회할 수 있다.")
+    void getClassesByTeacherId() {
+        // given
+        Long teacherId = 1L;
+
+        // Create a list of teaching classes
+        List<TeachingClass> teachingClasses = new ArrayList<>();
+        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000));
+        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 클래스", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000));
+
+        // Create a teacher with the teaching classes
+        Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
+
+        // Mock the repository to return the teacher
+        when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+
+        // when
+        List<ClassMetadataDto> result = teacherService.getClassesByTeacherId(teacherId);
+
+        // then
+        assertThat(result).hasSize(2);
+
+        // Verify first class
+        ClassMetadataDto firstClass = result.get(0);
+        assertThat(firstClass.id()).isEqualTo(1L);
+        assertThat(firstClass.teacherId()).isEqualTo(teacherId);
+        assertThat(firstClass.title()).isEqualTo("프로그래밍 기초 클래스");
+        assertThat(firstClass.description()).isEqualTo("자바 프로그래밍 기초를 배우는 클래스입니다.");
+        assertThat(firstClass.price()).isEqualTo(50000);
+
+        // Verify second class
+        ClassMetadataDto secondClass = result.get(1);
+        assertThat(secondClass.id()).isEqualTo(2L);
+        assertThat(secondClass.teacherId()).isEqualTo(teacherId);
+        assertThat(secondClass.title()).isEqualTo("알고리즘 마스터 클래스");
+        assertThat(secondClass.description()).isEqualTo("알고리즘 문제 해결 능력을 키우는 클래스입니다.");
+        assertThat(secondClass.price()).isEqualTo(70000);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 선생님의 클래스 목록을 조회하면 예외가 발생한다.")
+    void getClassesByTeacherId_teacherNotFound() {
+        // given
+        Long nonExistentTeacherId = 999L;
+        when(teacherRepository.findById(nonExistentTeacherId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> teacherService.getClassesByTeacherId(nonExistentTeacherId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("선생님이 존재하지 않습니다");
     }
 }
