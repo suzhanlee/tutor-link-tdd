@@ -1,9 +1,12 @@
 package com.tutorlink.application.service;
 
+import com.tutorlink.teacher.domain.ActiveStatus;
 import com.tutorlink.teacher.domain.Teacher;
 import com.tutorlink.teacher.domain.repository.TeacherRepository;
 import com.tutorlink.teacher.dto.CreateTeacherCommand;
 import com.tutorlink.teacher.dto.RegisterTeacherResult;
+
+import java.util.ArrayList;
 
 public class TeacherService {
 
@@ -14,7 +17,7 @@ public class TeacherService {
     }
 
     public RegisterTeacherResult registerTeacher(CreateTeacherCommand command) {
-        Teacher teacher = new Teacher(0L, command.name());
+        Teacher teacher = new Teacher(0L, command.name(), new ArrayList<>(), ActiveStatus.ACTIVE);
         Teacher savedTeacher = teacherRepository.save(teacher);
         return new RegisterTeacherResult(savedTeacher.id());
     }

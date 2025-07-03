@@ -1,5 +1,6 @@
 package com.tutorlink.infra.teacher;
 
+import com.tutorlink.teacher.domain.ActiveStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,16 +20,29 @@ public class TeacherEntity {
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    private ActiveStatus activeStatus;
+
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeachingClassEntity> teachingClasses = new ArrayList<>();
 
-    protected TeacherEntity(Long id, String name) {
+    protected TeacherEntity(Long id, String name, ActiveStatus activeStatus) {
         this.id = id;
         this.name = name;
+        this.activeStatus = activeStatus != null ? activeStatus : ActiveStatus.ACTIVE;
+    }
+
+    protected TeacherEntity(Long id, String name) {
+        this(id, name, ActiveStatus.ACTIVE);
+    }
+
+    public TeacherEntity(String name, ActiveStatus activeStatus) {
+        this.name = name;
+        this.activeStatus = activeStatus != null ? activeStatus : ActiveStatus.ACTIVE;
     }
 
     public TeacherEntity(String name) {
-        this.name = name;
+        this(name, ActiveStatus.ACTIVE);
     }
 
     public void addClass(TeachingClassEntity teachingClassEntity) {

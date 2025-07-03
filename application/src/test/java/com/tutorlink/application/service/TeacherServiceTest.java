@@ -30,7 +30,7 @@ class TeacherServiceTest {
     @DisplayName("선생님 정보로 선생님을 등록할 수 있다.")
     void registerTeacher() {
         // given
-        when(teacherRepository.save(Mockito.any(Teacher.class))).thenReturn(new Teacher(1L, "suchan"));
+        when(teacherRepository.save(Mockito.any(Teacher.class))).thenReturn(new Teacher(1L, "suchan", null, null));
 
         // when
         RegisterTeacherResult result = teacherService.registerTeacher(new CreateTeacherCommand("suchan"));
