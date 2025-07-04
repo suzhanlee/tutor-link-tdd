@@ -1,4 +1,5 @@
 ### 1. 시퀀스 정리
+
 ```mermaid
 sequenceDiagram
     participant Student
@@ -36,7 +37,6 @@ sequenceDiagram
     ReviewService -->> Student: 리뷰 등록 완료
 
 ```
-
 
 ### 2. 초기 연관관계 구조 정리
 

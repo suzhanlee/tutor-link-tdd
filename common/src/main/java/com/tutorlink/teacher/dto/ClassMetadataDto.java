@@ -1,8 +1,11 @@
-package com.tutorlink.teacher.domain;
+package com.tutorlink.teacher.dto;
 
 import java.time.LocalDateTime;
 
-public record TeachingClass(
+/**
+ * DTO for returning teaching class metadata
+ */
+public record ClassMetadataDto(
         Long id,
         Long teacherId,
         String title,
@@ -10,5 +13,4 @@ public record TeachingClass(
         int price,
         LocalDateTime registeredAt
 ) {
-
 }

@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -17,6 +19,7 @@ public class TeachingClassEntity {
     private String title;
     private String description;
     private int price;
+    private LocalDateTime registeredAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id")
@@ -27,6 +30,15 @@ public class TeachingClassEntity {
         this.description = description;
         this.price = price;
         this.teacher = teacher;
+        this.registeredAt = LocalDateTime.now();
+    }
+
+    public TeachingClassEntity(String title, String description, int price, TeacherEntity teacher, LocalDateTime registeredAt) {
+        this.title = title;
+        this.description = description;
+        this.price = price;
+        this.teacher = teacher;
+        this.registeredAt = registeredAt;
     }
 
     public void addTeacher(TeacherEntity teacherEntity) {
