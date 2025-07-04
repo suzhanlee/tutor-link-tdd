@@ -1,6 +1,5 @@
 package com.tutorlink.infra.teacher;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.tutorlink.infra.config.QuerydslConfig;
 import com.tutorlink.teacher.domain.ActiveStatus;
 import com.tutorlink.teacher.dto.*;
@@ -17,12 +16,13 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({QuerydslConfig.class, TeacherRepositoryCustomImpl.class})
+@Import(QuerydslConfig.class)
 class TeacherRepositoryCustomImplTest {
 
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
     private TeacherRepositoryCustomImpl teacherRepositoryCustom;
 
     private TeacherEntity teacher1;
@@ -30,9 +30,6 @@ class TeacherRepositoryCustomImplTest {
 
     @BeforeEach
     void setUp() {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-        teacherRepositoryCustom = new TeacherRepositoryCustomImpl(queryFactory);
-
         // Create test data
         teacher1 = new TeacherEntity("John Doe", ActiveStatus.ACTIVE);
         entityManager.persist(teacher1);

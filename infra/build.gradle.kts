@@ -33,6 +33,9 @@ dependencies {
     annotationProcessor("jakarta.annotation:jakarta.annotation-api")
     annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 
+    // test db
+    testImplementation("com.h2database:h2")
+
     implementation(project(":teacher"))
     implementation(project(":common"))
 }
