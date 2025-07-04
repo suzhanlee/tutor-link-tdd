@@ -37,6 +37,7 @@ dependencies {
     testImplementation("com.h2database:h2")
 
     implementation(project(":teacher"))
+    implementation(project(":student"))
     implementation(project(":common"))
 }
 
