@@ -58,6 +58,18 @@ public class TeachingClassEntity {
         this.recruitmentEndAt = recruitmentEndAt;
     }
 
+    protected TeachingClassEntity(Long id, String title, String description, int price, TeacherEntity teacher,
+                               LocalDateTime registeredAt, LocalDateTime recruitmentStartAt, LocalDateTime recruitmentEndAt) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.price = price;
+        this.teacher = teacher;
+        this.registeredAt = registeredAt;
+        this.recruitmentStartAt = recruitmentStartAt;
+        this.recruitmentEndAt = recruitmentEndAt;
+    }
+
     public void addTeacher(TeacherEntity teacherEntity) {
         this.teacher = teacherEntity;
     }
