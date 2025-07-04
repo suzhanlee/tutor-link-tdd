@@ -20,6 +20,8 @@ public class TeachingClassEntity {
     private String description;
     private int price;
     private LocalDateTime registeredAt;
+    private LocalDateTime recruitmentStartAt;
+    private LocalDateTime recruitmentEndAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id")
@@ -31,6 +33,8 @@ public class TeachingClassEntity {
         this.price = price;
         this.teacher = teacher;
         this.registeredAt = LocalDateTime.now();
+        this.recruitmentStartAt = this.registeredAt.plusDays(1);
+        this.recruitmentEndAt = this.registeredAt.plusDays(7);
     }
 
     public TeachingClassEntity(String title, String description, int price, TeacherEntity teacher, LocalDateTime registeredAt) {
@@ -39,6 +43,19 @@ public class TeachingClassEntity {
         this.price = price;
         this.teacher = teacher;
         this.registeredAt = registeredAt;
+        this.recruitmentStartAt = registeredAt.plusDays(1);
+        this.recruitmentEndAt = registeredAt.plusDays(7);
+    }
+
+    public TeachingClassEntity(String title, String description, int price, TeacherEntity teacher, 
+                              LocalDateTime registeredAt, LocalDateTime recruitmentStartAt, LocalDateTime recruitmentEndAt) {
+        this.title = title;
+        this.description = description;
+        this.price = price;
+        this.teacher = teacher;
+        this.registeredAt = registeredAt;
+        this.recruitmentStartAt = recruitmentStartAt;
+        this.recruitmentEndAt = recruitmentEndAt;
     }
 
     public void addTeacher(TeacherEntity teacherEntity) {

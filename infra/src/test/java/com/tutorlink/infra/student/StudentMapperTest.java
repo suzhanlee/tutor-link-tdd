@@ -52,7 +52,7 @@ class StudentMapperTest {
         StudentEntity result = StudentMapper.toEntity(student);
 
         // then
-        assertThat(result.getId()).isNull();
+        assertThat(result.getId()).isEqualTo(0);
         assertThat(result.getName()).isEqualTo("홍길동");
         assertThat(result.getEmail()).isEqualTo("hong@example.com");
         assertThat(result.getActiveStatus()).isEqualTo(ActiveStatus.ACTIVE);

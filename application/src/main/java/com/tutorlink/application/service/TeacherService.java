@@ -40,7 +40,9 @@ public class TeacherService {
                 command.title(),
                 command.description(),
                 command.price(),
-                command.registeredAt()
+                command.registeredAt(),
+                command.recruitmentStartAt(),
+                command.recruitmentEndAt()
         );
 
         Teacher updatedTeacher = teacher.registerClass(teachingClass);

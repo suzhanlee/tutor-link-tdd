@@ -31,7 +31,9 @@ public class TeacherMapper {
                         teachingClass.description(),
                         teachingClass.price(),
                         entity,
-                        teachingClass.registeredAt()
+                        teachingClass.registeredAt(),
+                        teachingClass.recruitmentStartAt(),
+                        teachingClass.recruitmentEndAt()
                 );
                 entity.addClass(classEntity);
             }
@@ -52,7 +54,9 @@ public class TeacherMapper {
                         entity.getTitle(),
                         entity.getDescription(),
                         entity.getPrice(),
-                        entity.getRegisteredAt()
+                        entity.getRegisteredAt(),
+                        entity.getRecruitmentStartAt(),
+                        entity.getRecruitmentEndAt()
                 ))
                 .collect(Collectors.toList());
     }

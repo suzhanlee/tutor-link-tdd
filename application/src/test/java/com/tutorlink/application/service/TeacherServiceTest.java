@@ -29,6 +29,34 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+// Helper methods for creating test objects
+class TestHelper {
+    static RegisterClassCommand createRegisterClassCommand(Long teacherId, String title, String description, int price, LocalDateTime registeredAt) {
+        return new RegisterClassCommand(
+                teacherId,
+                title,
+                description,
+                price,
+                registeredAt,
+                registeredAt.plusDays(1),
+                registeredAt.plusDays(7)
+        );
+    }
+
+    static TeachingClass createTeachingClass(Long id, Long teacherId, String title, String description, int price, LocalDateTime registeredAt) {
+        return new TeachingClass(
+                id,
+                teacherId,
+                title,
+                description,
+                price,
+                registeredAt,
+                registeredAt.plusDays(1),
+                registeredAt.plusDays(7)
+        );
+    }
+}
+
 @ExtendWith(MockitoExtension.class)
 class TeacherServiceTest {
 
@@ -71,7 +99,7 @@ class TeacherServiceTest {
         LocalDateTime registeredAt = LocalDateTime.of(2023, 6, 8, 8, 0); // 오전 8시
 
         Teacher teacher = new Teacher(teacherId, "suchan", new ArrayList<>(), ActiveStatus.ACTIVE);
-        RegisterClassCommand command = new RegisterClassCommand(teacherId, title, description, price, registeredAt);
+        RegisterClassCommand command = TestHelper.createRegisterClassCommand(teacherId, title, description, price, registeredAt);
 
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
         when(teacherRepository.save(any(Teacher.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -100,7 +128,7 @@ class TeacherServiceTest {
     void registerClass_teacherNotFound() {
         // given
         Long teacherId = 999L;
-        RegisterClassCommand command = new RegisterClassCommand(
+        RegisterClassCommand command = TestHelper.createRegisterClassCommand(
                 teacherId,
                 "프로그래밍 기초 클래스",
                 "자바 프로그래밍 기초를 배우는 클래스입니다.",
@@ -121,7 +149,7 @@ class TeacherServiceTest {
     void registerClass_policyValidationFails() {
         // given
         Long teacherId = 1L;
-        RegisterClassCommand command = new RegisterClassCommand(
+        RegisterClassCommand command = TestHelper.createRegisterClassCommand(
                 teacherId,
                 "짧은제목", // 10자 미만으로 정책 위반
                 "자바 프로그래밍 기초를 배우는 클래스입니다.",
@@ -151,8 +179,8 @@ class TeacherServiceTest {
 
         // Create a list of teaching classes
         List<TeachingClass> teachingClasses = new ArrayList<>();
-        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000, yesterday));
-        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 클래스", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000, now));
+        teachingClasses.add(TestHelper.createTeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000, yesterday));
+        teachingClasses.add(TestHelper.createTeachingClass(2L, teacherId, "알고리즘 마스터 클래스", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000, now));
 
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
@@ -237,8 +265,8 @@ class TeacherServiceTest {
 
         // Create a list of teaching classes
         List<TeachingClass> teachingClasses = new ArrayList<>();
-        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000, yesterday));
-        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 프로그래밍", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000, now));
+        teachingClasses.add(TestHelper.createTeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000, yesterday));
+        teachingClasses.add(TestHelper.createTeachingClass(2L, teacherId, "알고리즘 마스터 프로그래밍", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000, now));
 
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
@@ -297,9 +325,9 @@ class TeacherServiceTest {
 
         // Create a list of teaching classes with different registration dates
         List<TeachingClass> teachingClasses = new ArrayList<>();
-        teachingClasses.add(new TeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000, twoDaysAgo));
-        teachingClasses.add(new TeachingClass(2L, teacherId, "알고리즘 마스터 클래스", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000, yesterday));
-        teachingClasses.add(new TeachingClass(3L, teacherId, "웹 개발 클래스", "웹 개발 기초를 배우는 클래스입니다.", 60000, now));
+        teachingClasses.add(TestHelper.createTeachingClass(1L, teacherId, "프로그래밍 기초 클래스", "자바 프로그래밍 기초를 배우는 클래스입니다.", 50000, twoDaysAgo));
+        teachingClasses.add(TestHelper.createTeachingClass(2L, teacherId, "알고리즘 마스터 클래스", "알고리즘 문제 해결 능력을 키우는 클래스입니다.", 70000, yesterday));
+        teachingClasses.add(TestHelper.createTeachingClass(3L, teacherId, "웹 개발 클래스", "웹 개발 기초를 배우는 클래스입니다.", 60000, now));
 
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
@@ -353,9 +381,9 @@ class TeacherServiceTest {
 
         // Create a list of teaching classes with different prices
         List<TeachingClass> teachingClasses = new ArrayList<>();
-        teachingClasses.add(new TeachingClass(1L, teacherId, "중급 프로그래밍 클래스", "자바 프로그래밍 중급 과정입니다.", 70000, now));
-        teachingClasses.add(new TeachingClass(2L, teacherId, "초급 프로그래밍 클래스", "자바 프로그래밍 초급 과정입니다.", 50000, now));
-        teachingClasses.add(new TeachingClass(3L, teacherId, "고급 프로그래밍 클래스", "자바 프로그래밍 고급 과정입니다.", 90000, now));
+        teachingClasses.add(TestHelper.createTeachingClass(1L, teacherId, "중급 프로그래밍 클래스", "자바 프로그래밍 중급 과정입니다.", 70000, now));
+        teachingClasses.add(TestHelper.createTeachingClass(2L, teacherId, "초급 프로그래밍 클래스", "자바 프로그래밍 초급 과정입니다.", 50000, now));
+        teachingClasses.add(TestHelper.createTeachingClass(3L, teacherId, "고급 프로그래밍 클래스", "자바 프로그래밍 고급 과정입니다.", 90000, now));
 
         // Create a teacher with the teaching classes
         Teacher teacher = new Teacher(teacherId, "suchan", teachingClasses, ActiveStatus.ACTIVE);
@@ -410,7 +438,7 @@ class TeacherServiceTest {
         // Create a list of teaching classes
         List<TeachingClass> teachingClasses = new ArrayList<>();
         for (int i = 1; i <= 20; i++) {
-            teachingClasses.add(new TeachingClass(
+            teachingClasses.add(TestHelper.createTeachingClass(
                     (long) i,
                     teacherId,
                     "프로그래밍 클래스 " + i,

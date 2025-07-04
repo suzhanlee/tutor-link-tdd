@@ -7,6 +7,8 @@ public record RegisterClassCommand(
         String title,
         String description,
         int price,
-        LocalDateTime registeredAt
+        LocalDateTime registeredAt,
+        LocalDateTime recruitmentStartAt,
+        LocalDateTime recruitmentEndAt
 ) {
 }

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class ClassPolicyTest {
 
@@ -23,7 +24,7 @@ public class ClassPolicyTest {
         Teacher teacher = createTeacherWithEmptyClass();
 
         for (int i = 0; i < classPolicyCnt; i++) {
-            final RegisterClassCommand command = new RegisterClassCommand(1L, "A 클래스123456", "A 클래스 설명", 3000, registrationTime);
+            final RegisterClassCommand command = createRegisterClassCommand(1L, "A 클래스123456", "A 클래스 설명", 3000, registrationTime);
 
             if (teacher.teachingClasses().size() >= 10) {
                 final Teacher finalTeacher = teacher; // 람다 캡처를 위해 final 변수 선언
@@ -35,7 +36,7 @@ public class ClassPolicyTest {
 
             classPolicy.validate(teacher, command);
             teacher = teacher.registerClass(
-                    new TeachingClass(null, teacher.id(), command.title(), command.description(), command.price(), command.registeredAt())
+                    new TeachingClass(null, teacher.id(), command.title(), command.description(), command.price(), command.registeredAt(), command.recruitmentStartAt(), command.recruitmentEndAt())
             );
         }
     }
@@ -48,7 +49,7 @@ public class ClassPolicyTest {
         LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
         final ClassPolicy classPolicy = new ClassPolicy();
         Teacher teacher = createTeacherWithEmptyClass();
-        final RegisterClassCommand command = new RegisterClassCommand(1L, title, "A 클래스 설명", 3000, registrationTime);
+        final RegisterClassCommand command = createRegisterClassCommand(1L, title, "A 클래스 설명", 3000, registrationTime);
 
         // when & then
         classPolicy.validate(teacher, command);
@@ -62,7 +63,7 @@ public class ClassPolicyTest {
         LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
         final ClassPolicy classPolicy = new ClassPolicy();
         Teacher teacher = createTeacherWithEmptyClass();
-        final RegisterClassCommand command = new RegisterClassCommand(1L, title, "A 클래스 설명", 3000, registrationTime);
+        final RegisterClassCommand command = createRegisterClassCommand(1L, title, "A 클래스 설명", 3000, registrationTime);
 
         // when & then
         assertThatThrownBy(() -> classPolicy.validate(teacher, command))
@@ -78,7 +79,7 @@ public class ClassPolicyTest {
         LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
         final ClassPolicy classPolicy = new ClassPolicy();
         Teacher teacher = createTeacherWithEmptyClass();
-        final RegisterClassCommand command = new RegisterClassCommand(1L, title, "A 클래스 설명", 3000, registrationTime);
+        final RegisterClassCommand command = createRegisterClassCommand(1L, title, "A 클래스 설명", 3000, registrationTime);
 
         // when & then
         assertThatThrownBy(() -> classPolicy.validate(teacher, command))
@@ -94,7 +95,7 @@ public class ClassPolicyTest {
         LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
         final ClassPolicy classPolicy = new ClassPolicy();
         Teacher teacher = createTeacherWithEmptyClass();
-        final RegisterClassCommand command = new RegisterClassCommand(1L, title, "A 클래스 설명", 3000, registrationTime);
+        final RegisterClassCommand command = createRegisterClassCommand(1L, title, "A 클래스 설명", 3000, registrationTime);
 
         // when & then
         assertThatThrownBy(() -> classPolicy.validate(teacher, command))
@@ -111,7 +112,12 @@ public class ClassPolicyTest {
     }
 
     private static TeachingClass createTeachingClass(Long id) {
-        return new TeachingClass(id, 1L, "A 클래스", "A 클래스 설명", 1000, LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        return new TeachingClass(id, 1L, "A 클래스", "A 클래스 설명", 1000, now, now.plusDays(1), now.plusDays(7));
+    }
+
+    private static RegisterClassCommand createRegisterClassCommand(Long teacherId, String title, String description, int price, LocalDateTime registeredAt) {
+        return new RegisterClassCommand(teacherId, title, description, price, registeredAt, registeredAt.plusDays(1), registeredAt.plusDays(7));
     }
 
     @Test
@@ -121,7 +127,7 @@ public class ClassPolicyTest {
         LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
         final ClassPolicy classPolicy = new ClassPolicy();
         Teacher teacher = createTeacherWithEmptyClass();
-        final RegisterClassCommand command = new RegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
+        final RegisterClassCommand command = createRegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
 
         // when & then
         classPolicy.validate(teacher, command); // 예외가 발생하지 않아야 함
@@ -134,7 +140,7 @@ public class ClassPolicyTest {
         LocalDateTime registrationTime = LocalDateTime.now().withHour(11); // 오전 11시로 설정
         final ClassPolicy classPolicy = new ClassPolicy();
         Teacher teacher = createTeacherWithEmptyClass();
-        final RegisterClassCommand command = new RegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
+        final RegisterClassCommand command = createRegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
 
         // when & then
         assertThatThrownBy(() -> classPolicy.validate(teacher, command))
@@ -149,7 +155,7 @@ public class ClassPolicyTest {
         LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
         final ClassPolicy classPolicy = new ClassPolicy();
         Teacher teacher = createTeacherWithEmptyClass(ActiveStatus.ACTIVE);
-        final RegisterClassCommand command = new RegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
+        final RegisterClassCommand command = createRegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
 
         // when & then
         classPolicy.validate(teacher, command); // 예외가 발생하지 않아야 함
@@ -162,7 +168,7 @@ public class ClassPolicyTest {
         LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
         final ClassPolicy classPolicy = new ClassPolicy();
         Teacher teacher = createTeacherWithEmptyClass(ActiveStatus.INACTIVE);
-        final RegisterClassCommand command = new RegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
+        final RegisterClassCommand command = createRegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
 
         // when & then
         assertThatThrownBy(() -> classPolicy.validate(teacher, command))
@@ -177,11 +183,69 @@ public class ClassPolicyTest {
         LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
         final ClassPolicy classPolicy = new ClassPolicy();
         Teacher teacher = null;
-        final RegisterClassCommand command = new RegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
+        final RegisterClassCommand command = createRegisterClassCommand(1L, "1234567890", "A 클래스 설명", 3000, registrationTime);
 
         // when & then
         assertThatThrownBy(() -> classPolicy.validate(teacher, command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("선생님이 존재하지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("클래스의 시작일이 종료일 이전이면 유효하다")
+    void validateClassDateValid() {
+        // given
+        LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
+        LocalDateTime startDate = registrationTime.plusDays(1);
+        LocalDateTime endDate = registrationTime.plusDays(7);
+
+        final ClassPolicy classPolicy = new ClassPolicy();
+        Teacher teacher = createTeacherWithEmptyClass();
+        final RegisterClassCommand command = new RegisterClassCommand(
+            1L, "1234567890", "A 클래스 설명", 3000, registrationTime, startDate, endDate
+        );
+
+        // when & then
+        assertThatCode(() -> classPolicy.validate(teacher, command))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("클래스의 시작일이 종료일 이후이면 예외가 발생한다")
+    void validateClassDateInvalid() {
+        // given
+        LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
+        LocalDateTime startDate = registrationTime.plusDays(7);
+        LocalDateTime endDate = registrationTime.plusDays(1);
+
+        final ClassPolicy classPolicy = new ClassPolicy();
+        Teacher teacher = createTeacherWithEmptyClass();
+        final RegisterClassCommand command = new RegisterClassCommand(
+            1L, "1234567890", "A 클래스 설명", 3000, registrationTime, startDate, endDate
+        );
+
+        // when & then
+        assertThatThrownBy(() -> classPolicy.validate(teacher, command))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("클래스의 시작일은 종료일 이전이어야 합니다.");
+    }
+
+    @Test
+    @DisplayName("클래스의 시작일과 종료일이 같으면 예외가 발생한다")
+    void validateClassDateSame() {
+        // given
+        LocalDateTime registrationTime = LocalDateTime.now().withHour(7); // 오전 7시로 설정
+        LocalDateTime sameDate = registrationTime.plusDays(1);
+
+        final ClassPolicy classPolicy = new ClassPolicy();
+        Teacher teacher = createTeacherWithEmptyClass();
+        final RegisterClassCommand command = new RegisterClassCommand(
+            1L, "1234567890", "A 클래스 설명", 3000, registrationTime, sameDate, sameDate
+        );
+
+        // when & then
+        assertThatThrownBy(() -> classPolicy.validate(teacher, command))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("클래스의 시작일은 종료일 이전이어야 합니다.");
     }
 }

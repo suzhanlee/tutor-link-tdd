@@ -1,6 +1,7 @@
 package com.tutorlink.teacher.domain;
 
 import com.tutorlink.teacher.dto.RegisterClassCommand;
+import java.time.LocalDateTime;
 
 public class ClassPolicy {
     public void validate(Teacher teacher, RegisterClassCommand registerClassCommand) {
@@ -8,6 +9,7 @@ public class ClassPolicy {
         validateTotalClassCnt(teacher);
         validateClassTitle(registerClassCommand.title());
         validateClassRegistrationTime(registerClassCommand);
+        validateClassDates(registerClassCommand);
     }
 
     private void validateTeacher(Teacher teacher) {
@@ -40,6 +42,16 @@ public class ClassPolicy {
         int hour = registerClassCommand.registeredAt().getHour();
         if (hour < 6 || hour >= 10) {
             throw new IllegalArgumentException("클래스 등록은 오전 6시부터 10시 사이에만 가능합니다.");
+        }
+    }
+
+    private void validateClassDates(RegisterClassCommand registerClassCommand) {
+        // 시작일이 종료일 이전인지 검증
+        LocalDateTime startDate = registerClassCommand.recruitmentStartAt();
+        LocalDateTime endDate = registerClassCommand.recruitmentEndAt();
+
+        if (!startDate.isBefore(endDate)) {
+            throw new IllegalArgumentException("클래스의 시작일은 종료일 이전이어야 합니다.");
         }
     }
 }

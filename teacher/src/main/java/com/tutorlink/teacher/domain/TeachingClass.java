@@ -8,7 +8,24 @@ public record TeachingClass(
         String title,
         String description,
         int price,
-        LocalDateTime registeredAt
+        LocalDateTime registeredAt,
+        LocalDateTime recruitmentStartAt,
+        LocalDateTime recruitmentEndAt
 ) {
+    /**
+     * Returns the current recruitment status of the teaching class.
+     * 
+     * @return RecruitmentStatus - RECRUITING, CLOSED, or NOT_YET_OPENED
+     */
+    public RecruitmentStatus getRecruitmentStatus() {
+        LocalDateTime now = LocalDateTime.now();
 
+        if (now.isBefore(recruitmentStartAt)) {
+            return RecruitmentStatus.NOT_YET_OPENED;
+        } else if (now.isAfter(recruitmentEndAt)) {
+            return RecruitmentStatus.CLOSED;
+        } else {
+            return RecruitmentStatus.RECRUITING;
+        }
+    }
 }
